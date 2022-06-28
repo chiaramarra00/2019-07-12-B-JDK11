@@ -5,8 +5,12 @@
 package it.polito.tdp.food;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.food.model.Adiacenza;
+import it.polito.tdp.food.model.Food;
 import it.polito.tdp.food.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,7 +45,7 @@ public class FoodController {
     private Button btnSimula; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxFood"
-    private ComboBox<?> boxFood; // Value injected by FXMLLoader
+    private ComboBox<Food> boxFood; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -50,18 +54,83 @@ public class FoodController {
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Creazione grafo...");
+    	int porzioni;
+    	try {
+    		porzioni = Integer.parseInt(txtPorzioni.getText());
+    	} catch (NumberFormatException e) {
+    		txtResult.setText("Inserire una porzione valida\n");
+    		e.printStackTrace();
+    		return;
+    	}
+    	model.creaGrafo(porzioni);
+    	List<Food> vertici = model.getVertici();
+    	Collections.sort(vertici);
+    	boxFood.getItems().setAll(vertici);
     }
 
     @FXML
     void doGrassi(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Analisi grassi...");
+    	int porzioni;
+    	try {
+    		porzioni = Integer.parseInt(txtPorzioni.getText());
+    	} catch (NumberFormatException e) {
+    		txtResult.setText("Inserire una porzione valida\n");
+    		e.printStackTrace();
+    		return;
+    	}
+    	if (!model.grafoCreato()) {
+    		txtResult.setText("Creare un grafo\n");
+    		return;
+    	}
+    	Food cibo = boxFood.getValue();
+    	if (cibo==null) {
+    		txtResult.setText("Selezionare un cibo\n");
+    		return;
+    	}
+    	for (Adiacenza a : model.doGrassi(cibo)) {
+    		txtResult.appendText(a.getF2()+" "+a.getPeso()+"\n");
+    	}
     }
 
     @FXML
     void doSimula(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Simulazione...");
+    	int porzioni;
+    	try {
+    		porzioni = Integer.parseInt(txtPorzioni.getText());
+    	} catch (NumberFormatException e) {
+    		txtResult.setText("Inserire una porzione valida\n");
+    		e.printStackTrace();
+    		return;
+    	}
+    	if (!model.grafoCreato()) {
+    		txtResult.setText("Creare un grafo\n");
+    		return;
+    	}
+    	Food cibo = boxFood.getValue();
+    	if (cibo==null) {
+    		txtResult.setText("Selezionare un cibo\n");
+    		return;
+    	}
+    	for (Adiacenza a : model.doGrassi(cibo,5)) {
+    		txtResult.appendText(a.getF2()+" "+a.getPeso()+"\n");
+    	}
+    	int k;
+    	try {
+    		k = Integer.parseInt(txtK.getText());
+    	} catch (NumberFormatException e) {
+    		txtResult.setText("Inserire un valore k numerico\n");
+    		e.printStackTrace();
+    		return;
+    	}
+    	if (k<1 || k>10) {
+    		txtResult.setText("Inserire un valore k compreso tra 1 e 10\n");
+    		return;
+    	}
+    	model.simula(cibo,k);
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
