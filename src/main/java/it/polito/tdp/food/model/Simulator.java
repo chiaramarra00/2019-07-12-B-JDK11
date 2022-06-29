@@ -20,7 +20,6 @@ public class Simulator {
 		private List<Adiacenza> adiacenzeIniziali;
 		
 		//Parametri della simulazione 
-		private Food f1;
 		private int k;
 		
 		//Coda degli eventi
@@ -50,12 +49,11 @@ public class Simulator {
 		
 		public void init(Graph<Food, DefaultWeightedEdge> grafo, Food cibo, int k, List<Adiacenza> adiacenze) {
 			this.grafo = grafo;
-			this.f1 = cibo;
 			this.k = k;
 			this.adiacenzeIniziali = adiacenze;
 			this.queue = new PriorityQueue<Event>();
 			cibiPreparati = new LinkedList<Food>();
-			durata = 0;
+			this.durata = 0;
 			this.stazioni = new LinkedList<Stazione>();
 			creaStazioni();
 			creaEventi();
@@ -76,15 +74,17 @@ public class Simulator {
 			case INIZIO_LAVORAZIONE:
 				e.getStazione().setOccupata(true);
 				cibiPreparati.add(e.getCibo());
-				queue.add(new Event(e.getTime()+e.getDurata(), EventType.STAZIONE_LIBERATA, null, null, e.getStazione()));
+				queue.add(new Event(e.getTime()+e.getDurata(), EventType.STAZIONE_LIBERATA, null, 0.0, e.getStazione()));
 				
 				double inizio = e.getTime()+e.getDurata();
 				Food cibo = null;
+				Double durata = null;
 				for (Adiacenza a : doGrassi(e.getCibo(),Graphs.successorListOf(grafo, e.getCibo()).size())) {
-					if (!cibiPreparati.contains(a.getF2()))
+					if (!cibiPreparati.contains(a.getF2())) {
 						cibo = a.getF2();
+						durata = a.getPeso();
+					}
 				}
-				double durata = grafo.getEdgeWeight(grafo.getEdge(e.getCibo(), cibo));
 				Stazione stazione = null;
 				for (Stazione s : this.stazioni) {
 					if (!s.isOccupata()) {
@@ -92,11 +92,13 @@ public class Simulator {
 						break;
 					}
 				}
+				if (cibo==null || stazione==null)
+					return;
 				queue.add(new Event(inizio, EventType.INIZIO_LAVORAZIONE, cibo, durata, stazione));
-			case TAVOLO_LIBERATO:
-				e.getTavolo().setOccupato(false);
+			case STAZIONE_LIBERATA:
+				e.getStazione().setOccupata(false);
 				break;
-		}
+		    }
 		}
 		
 		public List<Adiacenza> doGrassi(Food f1, int n) {

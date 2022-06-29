@@ -72,40 +72,6 @@ public class FoodController {
     void doGrassi(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Analisi grassi...");
-    	int porzioni;
-    	try {
-    		porzioni = Integer.parseInt(txtPorzioni.getText());
-    	} catch (NumberFormatException e) {
-    		txtResult.setText("Inserire una porzione valida\n");
-    		e.printStackTrace();
-    		return;
-    	}
-    	if (!model.grafoCreato()) {
-    		txtResult.setText("Creare un grafo\n");
-    		return;
-    	}
-    	Food cibo = boxFood.getValue();
-    	if (cibo==null) {
-    		txtResult.setText("Selezionare un cibo\n");
-    		return;
-    	}
-    	for (Adiacenza a : model.doGrassi(cibo)) {
-    		txtResult.appendText(a.getF2()+" "+a.getPeso()+"\n");
-    	}
-    }
-
-    @FXML
-    void doSimula(ActionEvent event) {
-    	txtResult.clear();
-    	txtResult.appendText("Simulazione...");
-    	int porzioni;
-    	try {
-    		porzioni = Integer.parseInt(txtPorzioni.getText());
-    	} catch (NumberFormatException e) {
-    		txtResult.setText("Inserire una porzione valida\n");
-    		e.printStackTrace();
-    		return;
-    	}
     	if (!model.grafoCreato()) {
     		txtResult.setText("Creare un grafo\n");
     		return;
@@ -117,6 +83,21 @@ public class FoodController {
     	}
     	for (Adiacenza a : model.doGrassi(cibo,5)) {
     		txtResult.appendText(a.getF2()+" "+a.getPeso()+"\n");
+    	}
+    }
+
+    @FXML
+    void doSimula(ActionEvent event) {
+    	txtResult.clear();
+    	txtResult.appendText("Simulazione...");
+    	if (!model.grafoCreato()) {
+    		txtResult.setText("Creare un grafo\n");
+    		return;
+    	}
+    	Food cibo = boxFood.getValue();
+    	if (cibo==null) {
+    		txtResult.setText("Selezionare un cibo\n");
+    		return;
     	}
     	int k;
     	try {
@@ -131,6 +112,8 @@ public class FoodController {
     		return;
     	}
     	model.simula(cibo,k);
+    	txtResult.setText("Numero di cibi preparati: "+model.getSim().getCibiPreparati().size()+"\n");
+    	txtResult.appendText("Tempo totale di preparazione: "+model.getSim().getDurata()+"\n");
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete

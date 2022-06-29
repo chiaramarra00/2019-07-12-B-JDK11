@@ -30,6 +30,10 @@ public class Model {
 		sim = new Simulator();
 	}
 	
+	public Simulator getSim() {
+		return sim;
+	}
+
 	public void creaGrafo(int porzioni) {
 		//creo il grafo
 		this.grafo = 
